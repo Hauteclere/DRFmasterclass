@@ -28,7 +28,7 @@ And use pip to install the packages listed in requirements.txt. (For this class 
 
 >pip install -r requirements.txt
 
-OK! That's the prep done.  You're ready to join the masterclass and see what DRF has to offer! 
+## OK! That's the prep done.  You're ready to join the masterclass and see what DRF has to offer! 
 
-Happy coding,
-	- Oliver
+## Happy coding,
+###	- Oliver
