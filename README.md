@@ -1,4 +1,4 @@
-#Hi! 
+# Hi! 
 
 This is the starter repo for my upcoming masterclass on building an API in Django Rest Framework. 
 As you can see, it's pretty sparse at the moment - that's because we will be building a small API from the ground up!  
@@ -28,7 +28,7 @@ And use pip to install the packages listed in requirements.txt. (For this class 
 
 >pip install -r requirements.txt
 
-##OK! That's the prep done.  You're ready to join the masterclass and see what DRF has to offer! 
+OK! That's the prep done.  You're ready to join the masterclass and see what DRF has to offer! 
 
-###Happy coding,
-###	- Oliver
+Happy coding,
+	- Oliver
