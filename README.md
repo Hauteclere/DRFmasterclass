@@ -24,7 +24,7 @@ Activate your environment:
 
 `source venv/bin/activate`
 
-And use pip to install the packages listed in requirements.txt. (For this class it's just Django and Django Rest Framework:
+And use pip to install the packages listed in requirements.txt. (For this class it's just Django and Django Rest Framework):
 
 `pip install -r requirements.txt`
 
