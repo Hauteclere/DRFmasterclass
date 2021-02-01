@@ -8,27 +8,27 @@ To follow along you'll need: Python, Pip, and git. We will be querying our API t
 
 To get ready for the class, clone this repo with the terminal command 
 
->git clone https://github.com/Hauteclere/DRFmasterclass.git
+`git clone https://github.com/Hauteclere/DRFmasterclass.git`
 
 If you'd like to push your work to your own github, you'll need to make a new blank repo on github.com and change the origin of your cloned repo to that address, using
 
->git remote set-url origin <ADDRESS_OF_YOUR_REPO>
+`git remote set-url origin <ADDRESS_OF_YOUR_REPO>`
 
 Next, navigate to your newly cloned repo, and set up an environment to make installations in.  Since I'm using virtualenv, the command is 
 
->virtualenv venv
+`virtualenv venv`
 
 (Where venv is the name I've chosen for my new environment.) 
 
 Activate your environment:
 
->source venv/bin/activate
+`source venv/bin/activate`
 
 And use pip to install the packages listed in requirements.txt. (For this class it's just Django and Django Rest Framework:
 
->pip install -r requirements.txt
+`pip install -r requirements.txt`
 
 ## OK! That's the prep done.  You're ready to join the masterclass and see what DRF has to offer! 
 
-## Happy coding,
-###	- Oliver
+## Happy coding
+##	- Oliver
