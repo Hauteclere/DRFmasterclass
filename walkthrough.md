@@ -19,7 +19,7 @@ Before we take off with the practical component of the lesson, let's do some ini
 Among the packages installed you should see:
 
 >   ...
->   Django              3.0.8
+>   Django              3.0.8 \n
 >   djangorestframework 3.11.0 
 >   ...    
 
