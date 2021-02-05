@@ -18,9 +18,9 @@ Before we take off with the practical component of the lesson, let's do some ini
 
 Among the packages installed you should see:
 
->   ...
-   Django              3.0.8
-   djangorestframework 3.11.0
+>   ...  
+   Django              3.0.8  
+   djangorestframework 3.11.0  
    ...    
 
 If you aren't able to get this result, head back to the README.md and see if there's a step you missed, or an error you made.  You'll need Django and DRF to proceed.
