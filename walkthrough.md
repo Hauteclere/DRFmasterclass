@@ -2,10 +2,10 @@
 ### First, some theory...
 In class, I'll be talking through the following points to help students frame their understanding of what Django/DRF are and how they can be used.
 
-- MVC architecture: not quite as tightly specified as it seems
-- Django vs Flask
-- Django can stand alone
-- DRF puts Django on the back-end
+- MVC vs MVT architecture
+- What Django does
+- What DRF does
+- Data flow in a DRF API 
 
 ---
 
@@ -33,19 +33,13 @@ One of the great features of Django is that despite being a very complex and pow
 
 With your venv running in the DRFmasterclass repo, enter the following command:
 
-`django-admin startproject ClimbingLeague`
+`django-admin startproject ClimbingLeague .`
 
 Now check out the contents of the repo:
 
 `ls`
 
-A new directory has been created, called ClimbingLeague!  Let's check it out:
-
-`ls ClimbingLeague`
-
-Inside the ClimbingLeague directory we have another directory, also called ClimbingLeague, and a file named manage.py.  This is the beginnings of our API project.  In fact, it is already a working Django project, but it doesn't do anything except turn on and exist.  If it were a number, our current project would be the number zero.  If it were a culinary experience, it would be a glass of water.  Let's see what that looks like by running the project server on localhost and visiting it:
-
-`cd ClimbingLeague`
+Inside the DRFmasterclass directory we have another directory, called ClimbingLeague, and also a new file named manage.py.  This is the beginnings of our API project.  In fact, what we have here is already a working Django project, but it doesn't do anything except turn on and exist.  If it were a number, our current project would be the number zero.  If it were a culinary experience, it would be a glass of water.  Let's see what that looks like by running the project server on localhost and visiting it:
 
 `python3 manage.py runserver`
 
