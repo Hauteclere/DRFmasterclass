@@ -7,6 +7,8 @@ In class, I'll be talking through the following points to help students frame th
 - Django can stand alone
 - DRF puts Django on the back-end
 
+---
+
 ### Flaps... check! Props... Check! Fuel... Check!
 Before we take off with the practical component of the lesson, let's do some initial checks.  First, navigate to the repo you have (hopefully) already set up with a coding environment in it, activate your env, and check that you have both Django and DRF installed:
 
@@ -52,6 +54,8 @@ The program will output some alerts into the terminal to let us know it is runni
 Open your web browser and type `localhost:8000` into the address bar, then hit enter.  
 
 If you see a rocket, it worked!  We are on our way!
+
+---
 
 ### Exploring the project 
 Let's take a look at a few of the elements that make up this foundational project:
