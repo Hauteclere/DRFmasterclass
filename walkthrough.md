@@ -82,10 +82,13 @@ Make sure you are inside the ProjectDirectory, and then run the following comman
 `python3 manage.py startapp users`
 
 This command has created another subdirectory in our ProjectDirectory, called `/users/`.  Let's see what it contains:
+
 - migrations/
 : This subdirectory will contain the database migrations that the Django ORM generates based on our code. As we haven't generated any yet, it currently only has the python `__init__.py` module file. 
+
 - models.py
 : This file is where we will construct the models we use to structure/interact with our data.
+
 - views.py
 : This file is where we would construct our views, if we were making a basic Django project. Since we are using DRF, we will go with a slightly different structure, but it's useful to point this out since not every Django project is a backend API.
 
@@ -94,7 +97,7 @@ This command has created another subdirectory in our ProjectDirectory, called `/
 ## Updating our project settings:
 We need to register our new app with Django so that the ORM hook into the models we are about to write.  In VS code, inspect the `ClimbingLeague/settings.py` file.  Starting on line 33 we have:
 
-```
+```python
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -107,7 +110,7 @@ INSTALLED_APPS = [
 
 We just need to add our users app onto the end of this list, like so:
 
-```
+```python
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -121,7 +124,7 @@ INSTALLED_APPS = [
 
 We also need to tell Django that one of the models we are about to create is going to be the model we want our project to use for user authorization.  On a new line after the list of installed apps (so around line 42), we can add:
 
-```
+```python
 AUTH_USER_MODEL = 'users.CustomUser'
 ```
 
@@ -130,3 +133,17 @@ This overwrites the default settings of our project, so it knows to use our cust
 ---
 
 ## Writing our model:
+
+In VSCode, let's edit `/users/models.py`. The code we need to create looks like this:
+
+```python
+from django.contrib.auth.models import AbstractUser
+
+class CustomUser(AbstractUser):
+	pass
+	
+	def __str__(self):
+		return self.username
+```
+
+The resulting user model is identical to Django's default, but now that we've done the work of swapping it in to replace the default, we are free to modify it at our leisure.  
