@@ -220,3 +220,22 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return CustomUser.objects.create_user(**validated_data)
 ```
+
+It doesn't look like much, but this is a fully functional serializer. DRF is doing some heavy lifting for us by inferring all sorts of things about our models, and Django is lending a helping hand by providing us with the create_user method.  Now let's hook this serializer up to an API endpoint.
+
+## Creating an endpoint:
+
+DRF gives us the tools to create RESTful API endpoints, in the form of specialised Django views. Using VSCode, write the following code in the `ClimbingLeague/users/views.py` file:
+
+```python
+from .models import CustomUser
+from .serializers import UserSerializer
+from rest_framework import generics
+
+class UserList(generics.ListCreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+```
+
+> Q: Is this seriously all of the code we need here?
+> A: Yes! 
