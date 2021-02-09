@@ -1,6 +1,6 @@
 from django.db import models
 
-class Climber(models.model):
+class Climber(models.Model):
     
     name=models.CharField(max_length=100)
 

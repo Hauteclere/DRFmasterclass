@@ -412,7 +412,7 @@ Now let's create the model. In VSCode, add the following code to the newly creat
 ```python
 from django.db import models
 
-class Climber(models.model):
+class Climber(models.Model):
     
     name=models.CharField(max_length=100)
 
@@ -427,3 +427,323 @@ class Climber(models.model):
     )
 
 ```
+
+Since we created a new model, we need a new table in our database. Let's generate the migration and apply it:
+
+`python3 manage.py makemigrations`
+
+`python3 manage.py migrate`
+
+# Step 6: Setting Up a New Endpoint
+
+Since we have a new model we want to hook up to an endpoint, we'll have to write a new serializer for it. Using VSCode, create a new file called `serializers.py` in the `ProjectDirectory/climbers` directory. Here's the code we'll need:
+
+```python
+from .models import Climber
+from rest_framework import serializers
+
+class ClimberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Climber
+        fields = ['id', 'name', 'specialty']
+
+    def create(self, validated_data):
+        return Climber.objects.create(**validated_data)
+```
+
+We need a view too! Here's the code we need to have in `ProjectDirectory/climbers/views.py`:
+
+```python
+from .models import Climber
+from .serializers import ClimberSerializer
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
+class ClimberList(generics.ListCreateAPIView):
+    queryset = Climber.objects.all()
+    serializer_class = ClimberSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
+
+```
+
+Wait a second... There's a logic problem here. This view implements the IsAuthenticatedOrReadOnly permission, which means that only users who are logged in can create new climbers. But we don't want just any old user to be able to dream up fictional climbers and put them in the database! This is a serious website. Let's take a detour to create another, stronger permission.  
+
+First, we need to create a new file in the `/climbers` directory, called `serializers.py`. Here's the code that goes in it:
+
+```python
+from rest_framework import permissions
+
+class IsSuperuserOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user.is_superuser
+```
+
+This permission restricts write actions to superusers - regular users are blocked. Let's implement it in our ClimberList view:
+
+```python
+from .models import Climber
+from .serializers import ClimberSerializer
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from .permissions import IsSuperuserOrReadOnly
+
+class ClimberList(generics.ListCreateAPIView):
+    queryset = Climber.objects.all()
+    serializer_class = ClimberSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly, IsSuperuserOrReadOnly]
+```
+
+Remember to import! Note that we still need users to be authenticated in order to check if they're superusers, so we leave in the original permission, and make sure it goes first.
+
+Let's hook this view up to a url. First we create a new `urls.py` file in the `/climbers` directory:
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('climbers/', views.ClimberList.as_view()),
+]
+```
+
+Then we consolidate these urls into the global `ClimbingLeague/urls.py` file:
+
+```python
+from django.contrib import admin
+from django.urls import path, include
+from rest_framework.authtoken.views import obtain_auth_token
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('users.urls')),
+    path('get-token/', obtain_auth_token),
+    path('', include('climbers.urls')),
+]
+```
+
+Let's jump on Insomnia and test our new endpoint!
+
+-  Who can make GET requests?
+-  Who can make POST requests?
+-  Are the options for climber specialty enforced?
+
+# Step 7: Model Relations
+
+So far our models are working, but they don't interact with each other. Let's make them more useful by joining their logic together. To do this, we'll add one more model to the `/users/models.py` file.
+
+```python
+from django.contrib.auth.models import AbstractUser
+from django.db import models 
+
+class CustomUser(AbstractUser):
+	pass
+	
+	def __str__(self):
+		return self.username
+
+class Team(models.Model):
+	date_created = models.DateTimeField(auto_now_add=True)
+	
+	user = models.ForeignKey(
+		'CustomUser',
+		on_delete=models.CASCADE,
+		related_name='teams',	
+	)
+	
+	speed_climber=models.ForeignKey(
+		'climbers.Climber',
+		on_delete=models.CASCADE,
+		related_name='speed_teams',
+	)
+
+	boulder_climber=models.ForeignKey(
+		'climbers.Climber',
+		on_delete=models.CASCADE,
+		related_name='boulder_teams',
+	)
+
+	lead_climber=models.ForeignKey(
+		'climbers.Climber',
+		on_delete=models.CASCADE,
+		related_name='lead_teams',
+	)
+```
+
+Remember your imports! 
+
+Now let's migrate this change:
+
+`python3 manage.py makemigrations`
+
+`python3 manage.py migrate`
+
+Good so far. Now, teams belong to users, and climbers can be included in teams. Since we've used a *foreignkey* relation here, one user can have many teams, and one climber can belong to many teams. Each team, on the other hand, only has one owner, and three climbers. Note that we've used 'lazy references' to specify the models for our relations. This is a handy feature of Django that lets you avoid some of the headaches of setting up imports.
+
+# Step 8: Serializer relations
+
+Let's see if we can get the relationship between a player and their teams reflected in a view. We'll need to create new serializers to handle the extra data. Here's the code we want to put in our `users/serializers.py` file:
+
+```python
+from .models import CustomUser, Team
+from rest_framework import serializers
+from climbers.serializers import ClimberSerializer
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        return CustomUser.objects.create_user(**validated_data)
+
+class TeamSerializer(serializers.ModelSerializer):
+    speed_climber=ClimberSerializer()
+    lead_climber=ClimberSerializer()
+    boulder_climber=ClimberSerializer()
+    class Meta:
+        model = Team
+        fields = ['date_created', 'speed_climber', 'lead_climber', 'boulder_climber']
+        extra_kwargs = {'date_created': {'read_only': True}}
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    teams = TeamSerializer(many=True)
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'teams']
+```
+
+Note that we have a couple of new imports here! We've also written two new serializers. One of them handles teams, and has three *nested serializers* in it. These will display the details of the climbers in the team. The other handles users in more detail than our first user serializer - it shows a list of all the teams they've created. 
+
+Let's create a view to deploy this serializer. Here's the code we want to have in `users/views.py`:
+
+```python
+from .models import CustomUser
+from .serializers import UserSerializer, UserDetailSerializer
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
+
+class UserList(generics.ListCreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+
+class UserDetail(generics.RetrieveAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserDetailSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def get_object(self):
+        return self.request.user
+```
+
+> "I'm writing this lesson and even I can't believe it's this easy."  
+   ~Oliver, 2021
+
+Finally, let's hook our new view up to a URL path in `users/urls.py`:
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('users/', views.UserList.as_view()),
+    path('my-profile/', views.UserDetail.as_view()),
+]
+```
+
+Note that since we have already registered `users/urls.py` to be included in the global path list, we don't have to repeat that step.
+
+Finally, we need a way for users to add a new team to their team history. First let's add one more serializer to `users/serializers.py`:
+
+```python
+from .models import CustomUser, Team
+from rest_framework import serializers
+from climbers.serializers import ClimberSerializer
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        return CustomUser.objects.create_user(**validated_data)
+
+class TeamSerializer(serializers.ModelSerializer):
+    speed_climber=ClimberSerializer()
+    lead_climber=ClimberSerializer()
+    boulder_climber=ClimberSerializer()
+    class Meta:
+        model = Team
+        fields = ['date_created', 'speed_climber', 'lead_climber', 'boulder_climber']
+        extra_kwargs = {'date_created': {'read_only': True}}
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    teams = TeamSerializer(many=True)
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'teams']
+
+class TeamSelectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = ['speed_climber', 'lead_climber', 'boulder_climber']
+```
+
+Now let's add one more view to `users/views.py`:
+
+```python
+from .models import CustomUser
+from .serializers import UserSerializer, UserDetailSerializer, TeamSelectionSerializer
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
+
+class UserList(generics.ListCreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+
+class UserDetail(generics.RetrieveAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserDetailSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def get_object(self):
+        return self.request.user
+
+class AddTeam(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = TeamSelectionSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+```
+
+Note the imports! Now we can add a new URL to `users/urls.py` to serve this final view:
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('users/', views.UserList.as_view()),
+    path('my-profile/', views.UserDetail.as_view()),
+    path('new-team/', views.AddTeam.as_view()),
+]
+```
+
+Let's have a go at creating some teams for our users in Insomnia!
+
+# Step 9: Where To From Here?
+
+That's probably more than we have time for in today's lesson, and we're barely scratching the surface of what's possible with Django. If you want to practise your skills a little more, here are some challenge tasks:
+
+-  Make it possible to record scores for climbers. 
+   -  Can you find a way to record scores in bulk?
+
+-  Modify the user model to have a `cumulative_score` field based on how well their teams have fared, and design a way to record this value accurately. 
+   -  Do you have to calculate it whenever it is requested, or is there a way to keep up updated programmatically?
+
+-  There are many more pieces of information that are relevant to selecting a climber for one's team. Some of this information even changes, like age. What extra fields need to be added to the climber model, and how should their logic work?
