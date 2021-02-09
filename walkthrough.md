@@ -468,7 +468,7 @@ class ClimberList(generics.ListCreateAPIView):
 
 Wait a second... There's a logic problem here. This view implements the IsAuthenticatedOrReadOnly permission, which means that only users who are logged in can create new climbers. But we don't want just any old user to be able to dream up fictional climbers and put them in the database! This is a serious website. Let's take a detour to create another, stronger permission.  
 
-First, we need to create a new file in the `/climbers` directory, called `serializers.py`. Here's the code that goes in it:
+First, we need to create a new file in the `/climbers` directory, called `permissions.py`. Here's the code that goes in it:
 
 ```python
 from rest_framework import permissions
