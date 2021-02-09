@@ -240,3 +240,45 @@ class UserList(generics.ListCreateAPIView):
 > Q: Is this seriously all of the code we need here?
 
 > A: Yes! 
+
+This endpoint accepts POST requests containing user data in JSON format, and uses them to create new user instances in the database.  It responds to GET requests by returning a list of all users in the database. This is an example of one of DRF's [Generic Views](https://www.django-rest-framework.org/api-guide/generic-views/#generic-views), and believe it or not, these aren't even the most powerful views that DRF offers. Let's hook it up to a URL so we can see it in action!
+
+## Creating a URL:
+
+We can use Django to associate our view with a URL, by adding it to the list of URLS in a `urls.py` file. We already have a global url list in the `/ClimbingLeague` directory, but since our project is going to grow to include more than one app, let's keep things organised by creating a `urls.py` file to store all the urls associated with the `users` app. 
+
+Use VSCode to create a new file called `urls.py` in the `/ClimbingLeague/users` directory, and populate it with the following code:
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('users/', views.UserList.as_view()),
+]
+```
+
+Finally, we need to feed the URLs from our users app through to the global URL list, so that Django can serve them. Inspect the `ClimbingLeague/urls.py` file in VSCode.  At the moment it should look like this:
+
+```python
+from django.contrib import admin
+from django.urls import path
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+]
+
+```
+
+We just need to add one more urlpattern to the list:
+
+```python
+from django.contrib import admin
+from django.urls import path
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('users.urls')),
+]
+
+```
