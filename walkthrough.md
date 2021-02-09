@@ -37,17 +37,19 @@ With your venv running in the DRFmasterclass repo, enter the following commands:
 
 `django-admin startproject ClimbingLeague ProjectDirectory`
 
-Now check out the contents of the repo:
+Now check out the contents of the ProjectDirectory we just created:
+
+`cd ProjectDirectory`
 
 `ls`
 
-Inside the DRFmasterclass directory we have created a new directory, called ProjectDirectory.  Inside this, we have a directory called ClimbingLeague, and also a new file named manage.py.  This is the beginnings of our API project.  In fact, what we have here is already a working Django project, but it doesn't do anything except turn on and exist.  If it were a number, our current project would be the number zero.  If it were a culinary experience, it would be a glass of water.  Let's see what that looks like by running the project server on localhost and visiting it:
+Inside the ProjectDirectory we have created a new directory, called ClimbingLeague, and also a new file named manage.py.  This is the beginnings of our Django/DRF project.  In fact, what we have here is already a working Django project, but it doesn't do anything except turn on and exist.  If it were a number, our current project would be the number zero.  If it were a culinary experience, it would be a glass of water.  Let's see what that looks like by running the project server on localhost and visiting it:
 
 `python3 manage.py runserver`
 
 The program will output some alerts into the terminal to let us know it is running.  One of these alerts warns us that we have unapplied migrations!  We can ignore that for now, we will circle back to it shortly.
 
-Open your web browser and type `localhost:8000` into the address bar, then hit enter.  
+Open your web browser and type `http://127.0.0.1:8000` into the address bar, then hit enter.  
 
 If you see a rocket, it worked!  We are on our way!
 
@@ -59,10 +61,10 @@ Let's take a look at a few of the elements that make up the beginning foundation
 - manage.py
 : This is the command line utility hooked up to our project. This is a tool that allows us to start the server, interact with our Django project directly through the python interpreter, interact directly with our database, etc... For some useful commands to use with this tool, take a look [here](https://docs.djangoproject.com/en/3.1/ref/django-admin/).
 
-- urls.py
+- ClimbingLeague/urls.py
 : This is the global list of urls that our project serves. At the moment it only serves the `admin/` url, which gives superusers useful data entry/output functionality. For more information on the Django admin, take a look [here](https://docs.djangoproject.com/en/3.1/ref/contrib/admin/).  We won't be using it for this class, but it's handy to know about.
 
-- settings.py
+- ClimbingLeague/settings.py
 : The motherlode!  This file is arguably the most important file in any Django project.  It specifies the parameters under which our project operates.  We'll talk through these in class, but if you're reading back through this info later, you can take a look [here](https://docs.djangoproject.com/en/3.1/ref/settings/) for (a lot!) more info.
 
 # Step 2:
@@ -72,3 +74,9 @@ Django ships with some builtin classes for handling users.  By default, it will 
 This is because:
 - The default User model resides in the django.contrib.auth module, which ships with Django, and therefore shouldn't be modified. Correct usage to create your own subclass of this (or another) model, and modify that. 
 - When the project database is instantiated, the project's user model is hooked into the Django ORM on a fundamental level.  The User model is unique in this way, and this makes changing to a different user model midway through the project's life much more difficult. (Modifying an existing custom user model is fine.)  It's better to install a custom model from the start, before things get complicated.
+
+We will store our CustomUser model inside a modular app within our project. A Django project usually consists of a number of discrete apps which communicate with one another to get the job done.  This division of labour makes it easier to modify a project and keep track of how it works.  
+
+Make sure you are inside the ProjectDirectory, and then run the following command:
+
+`python3 manage.py startapp users`
