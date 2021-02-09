@@ -214,8 +214,8 @@ from rest_framework import serializers
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['username', 'email', 'password']
-        extra_kwargs = {'password': {'write_only' = True}}
+        fields = ['username', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         return CustomUser.objects.create_user(**validated_data)
@@ -225,7 +225,7 @@ It doesn't look like much, but this is a fully functional serializer. DRF is doi
 
 ## Creating an endpoint:
 
-DRF gives us the tools to create RESTful API endpoints, in the form of specialised Django views. Using VSCode, write the following code in the `ClimbingLeague/users/views.py` file:
+DRF gives us the tools to create RESTful API endpoints, in the form of specialised Django views. Using VSCode, write the following code in the `ProjectDirectory/users/views.py` file:
 
 ```python
 from .models import CustomUser
@@ -247,7 +247,7 @@ This endpoint accepts POST requests containing user data in JSON format, and use
 
 We can use Django to associate our view with a URL, by adding it to the list of URLS in a `urls.py` file. We already have a global url list in the `/ClimbingLeague` directory, but since our project is going to grow to include more than one app, let's keep things organised by creating a `urls.py` file to store all the urls associated with the `users` app. 
 
-Use VSCode to create a new file called `urls.py` in the `/ClimbingLeague/users` directory, and populate it with the following code:
+Use VSCode to create a new file called `urls.py` in the `/ProjectDirectory/users` directory, and populate it with the following code:
 
 ```python
 from django.urls import path
@@ -270,11 +270,13 @@ urlpatterns = [
 
 ```
 
-We just need to add one more urlpattern to the list:
+We need to make two modifications:
+-  we need to import the function `include()` from `django.urls`
+-  we need to add an extra urlpattern to the list
 
 ```python
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -282,3 +284,27 @@ urlpatterns = [
 ]
 
 ```
+
+Don't forget that import!
+
+We're really getting places now. If everything has gone to plan, we should be able to run our server and use an API testing interface like Insomnia to check our project is working.
+
+Head to the command line, make sure you're in the `/ProjectDirectory`, and enter the following command:
+
+```
+python3 manage.py runserver
+```
+
+It's traditional at this stage to encounter some errors. If you do, take a look at the errortext that Django spits out and see if you can identify what went wrong. (You may have to read down several lines until you encounter the erroneous bit of code!) Common errors are the usual suspects: misspellings of class names or methods, forgetting to import, forgetting to save your edited file in VSCode, etc... If you encounter an error, don't worry too much, because we're about to take a short break, so you'll have time to troubleshoot. If your server ran correctly, though, load up VSCode with me and let's take our API for a spin!  
+
+Functions to test:
+-  make a GET request to 127.0.0.1:8000/users/ and see if your superuser is listed there
+-  make a POST request to 127.0.0.1:8000/users/ with no data
+   -  what was the response?
+   -  try adding the required fields, and see if you can create a new user!
+   -  make another GET request to check your new user has been added to the list
+
+
+---
+# Intermission
+---
