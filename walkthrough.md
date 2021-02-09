@@ -740,7 +740,7 @@ Let's have a go at creating some teams for our users in Insomnia!
 
 That's probably more than we have time for in today's lesson, and we're barely scratching the surface of what's possible with Django. If you want to practise your skills a little more, here are some challenge tasks:
 
--  Make it possible to record scores for climbers. 
+-  Try making it possible to record scores for climbers. 
    -  Can you find a way to record scores in bulk?
 
 -  Modify the user model to have a `cumulative_score` field based on how well their teams have fared, and design a way to record this value accurately. 
