@@ -103,6 +103,8 @@ This command has created another subdirectory in our ProjectDirectory, called `/
 We need to register our new app with Django so that the ORM hook into the models we are about to write.  In VS code, inspect the `ClimbingLeague/settings.py` file.  Starting on line 33 we have:
 
 ```python
+...
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -110,12 +112,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-] 
+]
+
+...
 ```
 
 We just need to add our users app onto the end of this list, like so:
 
 ```python
+...
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -124,7 +130,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users',
-] 
+]
+
+... 
 ```
 
 We also need to tell Django that one of the models we are about to create is going to be the model we want our project to use for user authorization.  On a new line after the list of installed apps (so around line 42), we can add:
@@ -165,15 +173,15 @@ Finally, let's use the Django shell to interrogate our database, to check that w
 
 This will launch the Python interpreter in the console, with a direct line to our project.  Let's import our user model:
 
-`from users.models import CustomUser`
+`>>> from users.models import CustomUser`
 
 Models in Django all have an associated "manager", which hooks into the Django ORM and allows rows from the database to be retrieved as model instances. By default, the model manager occupies the .objects field of the model. Let's grab all the rows from the `users` table of our database, and see what we have:
 
-`userlist = CustomUser.objects.all()`
+`>>> userlist = CustomUser.objects.all()`
 
 The `userlist` variable now contains the queryset of all user instances.  Querysets are a special Django type - they act like regular sets but with extra functionality. Let's see what's in this queryset:
 
-`userlist`
+`>>> userlist`
 
 There's our superuser! The Django shell API is incredibly useful, and worth exploring.  The [official Django tutorial](https://docs.djangoproject.com/en/3.1/intro/tutorial02/#playing-with-the-api) is a great place to start learning more about it if you're curious.
 
@@ -187,6 +195,8 @@ Remember earlier on in the lesson when we talked about the flow of data through 
 Since we are about to start using DRF, let's first register it as an installed app in our `ClimbingLeague/settings.py` file:
 
 ```python
+...
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -199,6 +209,8 @@ INSTALLED_APPS = [
     
     'users',
 ]
+
+...
 ```
 
 Note that we've inserted some extra linebreaks here.  This is just cosmetic, but it's helpful for readability to separate out the native Django entries in this list, the third-part apps like Django Rest Framework, and the local apps that we write ourselves.
@@ -306,5 +318,112 @@ Functions to test:
 
 
 ---
-# Intermission
+## Intermission
 ---
+
+# Step 4: Setting up Token Authentication
+
+In order for our users to perform actions on our website, we want to be able to authenticate them. Since we've decoupled the frontend from the backend, tokens are a great way of avoiding some otherwise-painful elements of the authentication process.
+
+Since we're making another modification to how our app works, we'll once again have to tweak the `settings.py`. This time, we're adding another DRF app to our installed apps list, and also creating a new entry for our DRF settings:
+
+```python
+...
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    
+    'rest_framework',
+    'rest_framework.authtoken',
+    
+    'users',
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication'
+    ]
+}
+
+AUTH_USER_MODEL = 'users.CustomUser'
+
+...
+```
+
+This change involves adding a new table to the database to handle users' tokens. Luckily, the `rest_framework.authtoken` app that we just registered includes the migrations that we need ready-made, so we just need to apply them. Head over to the command line, make sure you're in the project directory with your env running, and run the following command:
+
+`python3 manage.py migrate`
+
+We also need an endpoint for getting a user's token, but luckily DRF also has one of these ready to go for us; we just have to register it to our global URLs. Inspect the `ClimbingLeague/urls.py` file with VSCode.  We need to:
+-  add a new import for the view, and
+-  add a path to the list of urlpatterns
+
+Here's what that looks like:
+```python
+from django.contrib import admin
+from django.urls import path, include
+from rest_framework.authtoken.views import obtain_auth_token
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('users.urls')),
+    path('get-token/', obtain_auth_token)
+]
+```
+
+In Insomnia, create a new POST request to the url `127.0.0.1:8000/get-token/`, with a JSON containing the username and password for an existing user. (Make sure your server is running first.) You should receive a token in return! Now we are cooking with gas.  
+
+# Step 5: Creating Another Model
+
+So far, we've been generating code that is pretty much standard boilerplate for any new project. Let's create something specific to our use-case: a `Climber` model. Since climbers aren't the same as users, we'll keep the code to handle them in a new app.
+
+`python3 manage.py startapp climbers`
+
+Since we added a new app to our project, we need to register it in the `settings.py`:
+
+```python
+...
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    
+    'rest_framework',
+    'rest_framework.authtoken',
+    
+    'users',
+    'climbers',
+]
+
+...
+```
+
+Now let's create the model. In VSCode, add the following code to the newly created `ProjectDirectory/climbers/models.py` file:
+
+```python
+from django.db import models
+
+class Climber(models.model):
+    
+    name=models.CharField(max_length=100)
+
+    class Specialties(models.TextChoices):
+        SPEED = 'S', 'Speed'
+        LEAD = 'L', 'Lead'
+        BOULDER = 'B', 'Boulder'
+
+    specialty = models.CharField(
+        max_length=1,
+        choices=Specialties.choices,
+    )
+
+```
