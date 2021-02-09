@@ -3,7 +3,12 @@ In class, I'll be talking through the following points to help students frame th
 
 - MVC vs MVT architecture
 - What Django does for us
+   -  Manages our database with models (and managers).
+   -  Sends and retrieves data between the frontend and the database with views.
+   -  Handles the presentation of data to the user with templates. **NB - only relevant for full-stack Django development**
 - What DRF does for us
+   -  Gives us powerful, readymade serializer classes
+   -  Gives us *monstrously* powerful view classes for backend API construction
 - Data flow in a DRF API 
 
 
@@ -66,7 +71,7 @@ Open /ProjectDirectory/ in VSCode, and let's take a look at a few of the element
 : The motherlode!  This file is arguably the most important file in any Django project.  It specifies the parameters under which our project operates.  We'll talk through these in class, but if you're reading back through this info later, you can take a look [here](https://docs.djangoproject.com/en/3.1/ref/settings/) for (a lot!) more info.
 
 
-# Step 2: Creating a custom user model
+# Step 2: Creating a Custom User Model
 
 ## Starting a 'users' app:
 Django ships with some builtin classes for handling users.  By default, it will use the [User](https://docs.djangoproject.com/en/3.1/ref/contrib/auth/#django.contrib.auth.models.User) model, but any serious project should plan to swap in a custom model as the first major step of development.  
@@ -90,7 +95,7 @@ This command has created another subdirectory in our ProjectDirectory, called `/
 : This file is where we will construct the models we use to structure/interact with our data.
 
 - views.py
-: This file is where we would construct our views, if we were making a basic Django project. Since we are using DRF, we will go with a slightly different structure, but it's useful to point this out since not every Django project is a backend API.
+: This file is where we will construct our views.
 
 ---
 
@@ -146,4 +151,72 @@ class CustomUser(AbstractUser):
 		return self.username
 ```
 
-The resulting user model is identical to Django's default, but now that we've done the work of swapping it in to replace the default, we are free to modify it at our leisure.  
+The resulting user model is identical to Django's default, but now that we've done the work of swapping it in to replace the default, we are free to modify it at our leisure.  We're on the way!
+
+Let's go ahead and create a superuser account for ourselves now. In the console, make sure that you are in `/ProjectDirectory`, and run the following command:
+
+`python3 manage.py createsuperuser`
+
+You should be prompted to enter a username, an email address, and a password in turn. Make sure you pick a memorable password!
+
+Finally, let's use the Django shell to interrogate our database, to check that we created a superuser successfully. Run the following command:
+
+`python3 manage.py shell`
+
+This will launch the Python interpreter in the console, with a direct line to our project.  Let's import our user model:
+
+`from users.models import CustomUser`
+
+Models in Django all have an associated "manager", which hooks into the Django ORM and allows rows from the database to be retrieved as model instances. By default, the model manager occupies the .objects field of the model. Let's grab all the rows from the `users` table of our database, and see what we have:
+
+`userlist = CustomUser.objects.all()`
+
+The `userlist` variable now contains the queryset of all user instances.  Querysets are a special Django type - they act like regular sets but with extra functionality. Let's see what's in this queryset:
+
+`userlist`
+
+There's our superuser! The Django shell API is incredibly useful, and worth exploring.  The [official Django tutorial](https://docs.djangoproject.com/en/3.1/intro/tutorial02/#playing-with-the-api) is a great place to start learning more about it if you're curious.
+
+
+# Step 3: Creating User Endpoints
+
+Remember earlier on in the lesson when we talked about the flow of data through a DRF project?  Right now we have a database table and a model, but in order for our API to be useable, we need serializers, views, and URLs. We are moving past a pure Django project now - the next steps will be our first use of Django Rest Framework.
+
+## Creating a user serializer:
+
+Since we are about to start using DRF, let's first register it as an installed app in our `ClimbingLeague/settings.py` file:
+
+```python
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    
+    'rest_framework',
+    
+    'users',
+]
+```
+
+Note that we've inserted some extra linebreaks here.  This is just cosmetic, but it's helpful for readability to separate out the native Django entries in this list, the third-part apps like Django Rest Framework, and the local apps that we write ourselves.
+
+Next, we'll write our serializer.  Django apps aren't automatically created with a `serializers.py` file in them, so let's use visual studio to create one inside the `/users/` directory. 
+
+Once we've created our file, let's add some serializer code:
+
+```python
+from .models import CustomUser
+from rest_framework import serializers
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'email', 'password']
+        extra_kwargs = {'password': {'write_only' = True}}
+
+    def create(self, validated_data):
+        return CustomUser.objects.create_user(**validated_data)
+```
