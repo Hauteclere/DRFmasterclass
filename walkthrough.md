@@ -31,15 +31,17 @@ If you aren't able to get this result, head back to the README.md and see if the
 # Creating a Django project
 One of the great features of Django is that despite being a very complex and powerful tool, it is extremely quick and easy to get started with.  Let's instantiate a Django project now.  We will be creating an API to serve a fantasy-football style website, only instead of football teams, our league will be filled with professional rock climbers.  This task has been selected because rock climbers are *xxXX.eXtReMe.XXxx* and therefore cool and/or fun. Also, rock climbing events require fewer athletes than football teams, which will make our data entry and testing processes less tedious. 
 
-With your venv running in the DRFmasterclass repo, enter the following command:
+With your venv running in the DRFmasterclass repo, enter the following commands:
 
-`django-admin startproject ClimbingLeague .`
+`mkdir ProjectDirectory`
+
+`django-admin startproject ClimbingLeague ProjectDirectory`
 
 Now check out the contents of the repo:
 
 `ls`
 
-Inside the DRFmasterclass directory we have another directory, called ClimbingLeague, and also a new file named manage.py.  This is the beginnings of our API project.  In fact, what we have here is already a working Django project, but it doesn't do anything except turn on and exist.  If it were a number, our current project would be the number zero.  If it were a culinary experience, it would be a glass of water.  Let's see what that looks like by running the project server on localhost and visiting it:
+Inside the DRFmasterclass directory we have created a new directory, called ProjectDirectory.  Inside this, we have a directory called ClimbingLeague, and also a new file named manage.py.  This is the beginnings of our API project.  In fact, what we have here is already a working Django project, but it doesn't do anything except turn on and exist.  If it were a number, our current project would be the number zero.  If it were a culinary experience, it would be a glass of water.  Let's see what that looks like by running the project server on localhost and visiting it:
 
 `python3 manage.py runserver`
 
@@ -65,4 +67,8 @@ Let's take a look at a few of the elements that make up the beginning foundation
 
 # Step 2:
 # Creating a custom user model
+Django ships with some builtin classes for handling users.  By default, it will use the [User](https://docs.djangoproject.com/en/3.1/ref/contrib/auth/#django.contrib.auth.models.User) model, but any serious project should plan to swap in a custom model as the first major step of development.  
 
+This is because:
+- The default User model resides in the django.contrib.auth module, which ships with Django, and therefore shouldn't be modified. Correct usage to create your own subclass of this (or another) model, and modify that. 
+- When the project database is instantiated, the project's user model is hooked into the Django ORM on a fundamental level.  The User model is unique in this way, and this makes changing to a different user model midway through the project's life much more difficult. (Modifying an existing custom user model is fine.)  It's better to install a custom model from the start, before things get complicated.
