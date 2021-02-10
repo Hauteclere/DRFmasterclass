@@ -2,6 +2,7 @@
 In class, I'll be talking through the following points to help students frame their understanding of what Django/DRF are and how they can be used.
 
 - MVC vs MVT architecture
+    -   (See the relevant slide)
 - What Django does for us
    -  Manages our database with models (and managers).
    -  Sends and retrieves data between the frontend and the database with views.
@@ -10,6 +11,7 @@ In class, I'll be talking through the following points to help students frame th
    -  Gives us powerful, readymade serializer classes
    -  Gives us *monstrously* powerful view classes for backend API construction
 - Data flow in a DRF API 
+    -   (Check out the dataflow slide)
 
 
 # Step 0: Flaps... check! Props... Check! Fuel... Check!
