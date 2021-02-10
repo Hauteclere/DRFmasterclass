@@ -747,3 +747,22 @@ That's probably more than we have time for in today's lesson, and we're barely s
    -  Do you have to calculate it whenever it is requested, or is there a way to keep up updated programmatically?
 
 -  There are many more pieces of information that are relevant to selecting a climber for one's team. Some of this information even changes, like age. What extra fields need to be added to the climber model, and how should their logic work?
+
+# Useful resources:
+
+-   The [Django Documentation](https://docs.djangoproject.com/en/3.1/) is a great place to start looking when you run into trouble, especially...
+    -   The [Model Documentation](https://docs.djangoproject.com/en/3.1/topics/db/models/) for info on how to create models, and also...
+    -   The [Queryset Documentation](https://docs.djangoproject.com/en/3.1/topics/db/queries/) for info on how to query the database
+
+-   The [DRF Documentation](https://www.django-rest-framework.org/) is also really good.  Checkout the API Guide there for info on
+    -   [Generic APIViews](https://www.django-rest-framework.org/api-guide/generic-views/)
+    -   [Serializers](https://www.django-rest-framework.org/api-guide/serializers/)
+    -   [Serializer Fields](https://www.django-rest-framework.org/api-guide/fields/)
+    -   [Serializer Relations](https://www.django-rest-framework.org/api-guide/relations/)
+    -   [Permissions](https://www.django-rest-framework.org/api-guide/permissions/)
+    -   etc, etc...
+
+-   Vitor Freitas runs [a great blog](https://simpleisbetterthancomplex.com/) that has some really helpful information on solutions to specific Django/DRF-related problems. The level of assumed knowledge is a little higher than the official documentation listed above, so it's a good idea to have the docs open in another tab as you're reading through. (And to research how his solutions work before you implement them!)
+    -   For example here's [a great writeup on different user model options](https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html) (NB: I disagree with him about BaseAbstractUser - it should be the preferred user model for serious projects, IMO, and it's not too difficult to implement).
+
+-   When all else fails, there's always StackOverflow. Just remember, Django has been around for a long time, so some of the older answers are a little outdated. :)
