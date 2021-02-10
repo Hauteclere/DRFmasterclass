@@ -438,6 +438,7 @@ Since we created a new model, we need a new table in our database. Let's generat
 
 # Step 6: Setting Up a New Endpoint
 
+## Creating the serializer
 Since we have a new model we want to hook up to an endpoint, we'll have to write a new serializer for it. Using VSCode, create a new file called `serializers.py` in the `ProjectDirectory/climbers` directory. Here's the code we'll need:
 
 ```python
@@ -453,6 +454,7 @@ class ClimberSerializer(serializers.ModelSerializer):
         return Climber.objects.create(**validated_data)
 ```
 
+## Writing the view
 We need a view too! Here's the code we need to have in `ProjectDirectory/climbers/views.py`:
 
 ```python
@@ -468,6 +470,7 @@ class ClimberList(generics.ListCreateAPIView):
 
 ```
 
+## A quick diversion on permissions
 Wait a second... There's a logic problem here. This view implements the IsAuthenticatedOrReadOnly permission, which means that only users who are logged in can create new climbers. But we don't want just any old user to be able to dream up fictional climbers and put them in the database! This is a serious website. Let's take a detour to create another, stronger permission.  
 
 First, we need to create a new file in the `/climbers` directory, called `permissions.py`. Here's the code that goes in it:
@@ -482,6 +485,7 @@ class IsSuperuserOrReadOnly(permissions.BasePermission):
         return request.user.is_superuser
 ```
 
+## Finishing off the view
 This permission restricts write actions to superusers - regular users are blocked. Let's implement it in our ClimberList view:
 
 ```python
@@ -499,6 +503,7 @@ class ClimberList(generics.ListCreateAPIView):
 
 Remember to import! Note that we still need users to be authenticated in order to check if they're superusers, so we leave in the original permission, and make sure it goes first.
 
+## Setting up the URL
 Let's hook this view up to a url. First we create a new `urls.py` file in the `/climbers` directory:
 
 ```python
@@ -533,7 +538,7 @@ Let's jump on Insomnia and test our new endpoint!
 
 # Step 7: Model Relations
 
-So far our models are working, but they don't interact with each other. Let's make them more useful by joining their logic together. To do this, we'll add one more model to the `/users/models.py` file.
+So far our models are working, but they don't interact with each other. Let's make them more useful by having their logic intersect. To do this, we'll add one more model to the `/users/models.py` file.
 
 ```python
 from django.contrib.auth.models import AbstractUser
@@ -619,6 +624,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
 Note that we have a couple of new imports here! We've also written two new serializers. One of them handles teams, and has three *nested serializers* in it. These will display the details of the climbers in the team. The other handles users in more detail than our first user serializer - it shows a list of all the teams they've created. 
 
+## Implementing our model/serializer relations in a view
 Let's create a view to deploy this serializer. Here's the code we want to have in `users/views.py`:
 
 ```python
@@ -643,6 +649,7 @@ class UserDetail(generics.RetrieveAPIView):
 > "I'm writing this lesson and even I can't believe it's this easy."  
    ~Oliver, 2021
 
+## Setting up another URL
 Finally, let's hook our new view up to a URL path in `users/urls.py`:
 
 ```python
@@ -657,7 +664,10 @@ urlpatterns = [
 
 Note that since we have already registered `users/urls.py` to be included in the global path list, we don't have to repeat that step.
 
-Finally, we need a way for users to add a new team to their team history. First let's add one more serializer to `users/serializers.py`:
+# Step 9: Creating Related Model Instances
+
+## One final serializer
+As our last task for the lesson, we need a way for users to add a new team-of-the-week to their team history. First let's add one more serializer to `users/serializers.py`:
 
 ```python
 from .models import CustomUser, Team
@@ -694,6 +704,7 @@ class TeamSelectionSerializer(serializers.ModelSerializer):
         fields = ['speed_climber', 'lead_climber', 'boulder_climber']
 ```
 
+## One last view
 Now let's add one more view to `users/views.py`:
 
 ```python
@@ -723,7 +734,10 @@ class AddTeam(generics.CreateAPIView):
         serializer.save(user=self.request.user)
 ```
 
-Note the imports! Now we can add a new URL to `users/urls.py` to serve this final view:
+Note the imports! 
+
+## Finishing it off with one more URL
+Now we can add a new URL to `users/urls.py` to serve this final view:
 
 ```python
 from django.urls import path
