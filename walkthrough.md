@@ -163,6 +163,16 @@ class CustomUser(AbstractUser):
 
 The resulting user model is identical to Django's default, but now that we've done the work of swapping it in to replace the default, we are free to modify it at our leisure.  We're on the way!
 
+<mark>NOTE: I noticed during the live presentation that this next step was originally missing from the walkthrough. Just goes to show - you should always triple-check your work!</mark>
+
+Now that we have our new user model, let's make and apply a migration for it, so that the Django ORM can update our database.
+
+`python3 manage.py makemigrations`
+
+`python3 manage.py migrate`
+
+We've successfully created a table in the database for our new user model!
+
 Let's go ahead and create a superuser account for ourselves now. In the console, make sure that you are in `/ProjectDirectory`, and run the following command:
 
 `python3 manage.py createsuperuser`
