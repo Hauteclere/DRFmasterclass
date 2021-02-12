@@ -163,7 +163,7 @@ class CustomUser(AbstractUser):
 
 The resulting user model is identical to Django's default, but now that we've done the work of swapping it in to replace the default, we are free to modify it at our leisure.  We're on the way!
 
-<mark>NOTE: I noticed during the live presentation that this next step was originally missing from the walkthrough. Just goes to show - you should always triple-check your work!</mark>
+**NOTE: I noticed during the live presentation that this next step was originally missing from the walkthrough. Just goes to show - you should always triple-check your work!**
 
 Now that we have our new user model, let's make and apply a migration for it, so that the Django ORM can update our database.
 

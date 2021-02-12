@@ -28,7 +28,7 @@ And use pip to install the packages listed in requirements.txt. (For this class 
 
 `pip install -r requirements.txt`
 
-## OK! That's the prep done.  You're ready to join the masterclass and see what DRF has to offer! 
+## OK! That's the prep done.  You're ready to join the masterclass and see what DRF has to offer! If you're reading this guide at home, click over to the walkthrough.md file, and follow the steps outlined there.  During the live class we followed steps 0-6, so you'll find the worked code up until that point in the ProjectDirectory.  I recommend deleting that directory as soon as you clone this repo, and starting again from scratch. If you run into a problem and need to compare to my worked code, just take a look at the repo on GitHub. :) 
 
 ## Happy coding
 ##	- Oliver
