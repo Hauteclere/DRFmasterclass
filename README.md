@@ -1,4 +1,4 @@
-# Hi! 
+# Hi there! 
 
 This is the starter repo for my upcoming masterclass on building an API in Django Rest Framework. 
 As you can see, it's pretty sparse at the moment - that's because we will be building a small API from the ground up!  
